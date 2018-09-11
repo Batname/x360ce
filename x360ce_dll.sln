@@ -23,6 +23,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "InputHook", "x360ce\InputHo
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Common", "x360ce\Common\Common.vcxproj", "{0CAEE158-51E4-4C81-8CAC-F39F744DAF2D}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UE4x360ce", "x360ce\UE4x360ce\UE4x360ce.vcxproj", "{A45EBD9C-BCF4-4CE3-BE83-BCA5D874D764}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -69,6 +71,14 @@ Global
 		{0CAEE158-51E4-4C81-8CAC-F39F744DAF2D}.Release|Win32.Build.0 = Release|Win32
 		{0CAEE158-51E4-4C81-8CAC-F39F744DAF2D}.Release|x64.ActiveCfg = Release|x64
 		{0CAEE158-51E4-4C81-8CAC-F39F744DAF2D}.Release|x64.Build.0 = Release|x64
+		{A45EBD9C-BCF4-4CE3-BE83-BCA5D874D764}.Debug|Win32.ActiveCfg = Debug|Win32
+		{A45EBD9C-BCF4-4CE3-BE83-BCA5D874D764}.Debug|Win32.Build.0 = Debug|Win32
+		{A45EBD9C-BCF4-4CE3-BE83-BCA5D874D764}.Debug|x64.ActiveCfg = Debug|x64
+		{A45EBD9C-BCF4-4CE3-BE83-BCA5D874D764}.Debug|x64.Build.0 = Debug|x64
+		{A45EBD9C-BCF4-4CE3-BE83-BCA5D874D764}.Release|Win32.ActiveCfg = Release|Win32
+		{A45EBD9C-BCF4-4CE3-BE83-BCA5D874D764}.Release|Win32.Build.0 = Release|Win32
+		{A45EBD9C-BCF4-4CE3-BE83-BCA5D874D764}.Release|x64.ActiveCfg = Release|x64
+		{A45EBD9C-BCF4-4CE3-BE83-BCA5D874D764}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
