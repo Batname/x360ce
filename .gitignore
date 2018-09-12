@@ -243,3 +243,10 @@ ModelManifest.xml
 
 # FAKE - F# Make
 .fake/
+
+# Custom 
+x360ce.App.Beta/Resources/x360ce.Engine.XmlSerializers.dll
+x360ce.App.Beta/Resources/x360ce.Engine.dll
+x360ce.App/Resources/x360ce.Engine.XmlSerializers.dll
+x360ce.App/Resources/x360ce.Engine.dll
+x360ce/x360ce/svnrev.h
