@@ -836,7 +836,8 @@ namespace x360ce.App
 							if (gamePad.GetState(out state))
 							{
 								currentPad = state;
-								xiOn = true;
+                                //Console.WriteLine(currentPad.Gamepad.ToString());
+                                xiOn = true;
 							}
 						}
 					}
