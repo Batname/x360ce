@@ -32,7 +32,10 @@ LRESULT CALLBACK WndProc(HWND hwnd,    //Default windows procedure
 		HDEVNOTIFY hDeviceNotify = RegisterDeviceNotification(hwnd, &NotificationFilter, DEVICE_NOTIFY_ALL_INTERFACE_CLASSES);
 
 		if (hDeviceNotify == NULL)
+		{
 			printf("hDeviceNotify = NULL \n");
+
+		}
 	}
 	return 0;
 
@@ -49,10 +52,13 @@ LRESULT CALLBACK WndProc(HWND hwnd,    //Default windows procedure
 
 	case WM_DEVICECHANGE: {     
 		PDEV_BROADCAST_HDR pHdr = (PDEV_BROADCAST_HDR)lParam;
-
+		PDEV_BROADCAST_PORT pPort = (PDEV_BROADCAST_PORT)pHdr;
+		char name[256] = { 0 };
 		switch (wParam) {
 			case DBT_DEVICEARRIVAL:
-				MessageBox(hwnd, "A device has been inserted.", "USB Notice", MB_OK);
+				strncpy_s(name, 255, pPort->dbcp_name, 255);
+
+				MessageBox(hwnd, name, "Inserted", MB_OK);
 				break;
 			case DBT_DEVICEREMOVECOMPLETE:
 				MessageBox(hwnd, "A device has been removed.", "USB Notice", MB_OK);
