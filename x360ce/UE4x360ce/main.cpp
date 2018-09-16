@@ -1,218 +1,81 @@
+#pragma comment (lib,"dxguid")
+#pragma comment (lib,"dinput8")
+
 #include <iostream>
 #include <thread>         // std::this_thread::sleep_for
 #include <chrono>         // std::chrono::seconds
+#include <string>
 
 #include <windows.h>
-#include <Xinput.h>
-#include <sstream>
-#include <dbt.h>
+#include <Xinput.h> // window.h should be before
+#include <dinput.h>
+
 
 extern DWORD WINAPI XInputGetState(DWORD dwUserIndex, XINPUT_STATE* pState);
-extern "C" VOID WINAPI XInputEnable(BOOL enable);
-int messageloop();
 
-static const GUID interfaceClassGuid = { 0x53f56307, 0xb6bf, 0x11d0,{ 0x94, 0xf2, 0x00, 0xa0, 0xc9, 0x1e, 0xfb, 0x8b } };
-
-LRESULT CALLBACK WndProc(HWND hwnd,    //Default windows procedure
-	UINT msg,
-	WPARAM wParam,
-	LPARAM lParam) 
+bool GUIDtoString(std::string* out, const GUID &g)
 {
-	switch (msg)    //Check message
-	{
+	std::unique_ptr<char[]> buffer(new char[40]);
+	sprintf_s(buffer.get(), 40, "{%08X-%04X-%04X-%02X%02X-%02X%02X%02X%02X%02X%02X}",
+		g.Data1, g.Data2, g.Data3, g.Data4[0], g.Data4[1], g.Data4[2], g.Data4[3], g.Data4[4], g.Data4[5], g.Data4[6], g.Data4[7]);
 
-	case WM_CREATE:
-	{
-		DEV_BROADCAST_DEVICEINTERFACE NotificationFilter;
-		ZeroMemory(&NotificationFilter, sizeof(NotificationFilter));
-		NotificationFilter.dbcc_size = sizeof(DEV_BROADCAST_DEVICEINTERFACE);
-		NotificationFilter.dbcc_devicetype = DBT_DEVTYP_DEVICEINTERFACE;
-		NotificationFilter.dbcc_classguid = interfaceClassGuid;
-
-		HDEVNOTIFY hDeviceNotify = RegisterDeviceNotification(hwnd, &NotificationFilter, DEVICE_NOTIFY_ALL_INTERFACE_CLASSES);
-
-		if (hDeviceNotify == NULL)
-		{
-			printf("hDeviceNotify = NULL \n");
-
-		}
-	}
-	return 0;
-
-	case WM_KEYDOWN:    //For a key down
-						//if escape key was pressed, display popup box
-		if (wParam == VK_ESCAPE) {
-			if (MessageBox(0, "Are you sure you want to exit?",
-				"Really?", MB_YESNO | MB_ICONQUESTION) == IDYES)
-
-				//Release the windows allocated memory  
-				DestroyWindow(hwnd);
-		}
-		return 0;
-
-	case WM_DEVICECHANGE: {     
-		PDEV_BROADCAST_HDR pHdr = (PDEV_BROADCAST_HDR)lParam;
-		PDEV_BROADCAST_PORT pPort = (PDEV_BROADCAST_PORT)pHdr;
-		char name[256] = { 0 };
-		switch (wParam) {
-			case DBT_DEVICEARRIVAL:
-				strncpy_s(name, 255, pPort->dbcp_name, 255);
-
-				MessageBox(hwnd, name, "Inserted", MB_OK);
-				break;
-			case DBT_DEVICEREMOVECOMPLETE:
-				MessageBox(hwnd, "A device has been removed.", "USB Notice", MB_OK);
-				break;
-		}
-
-		return 0;
-	}
-
-	case WM_DESTROY:    //if x button in top right was pressed
-		PostQuitMessage(0);
-		return 0;
-	}
-	//return the message for windows to handle it
-	return DefWindowProc(hwnd,
-		msg,
-		wParam,
-		lParam);
+	*out = buffer.get();
+	return !out->empty();
 }
 
-LPCTSTR WndClassName = "firstwindow";    //Define our window class name
-const int Width = 800;    //window width
-const int Height = 600;    //window height
 
-DWORD dwUserIndex = 0;
-XINPUT_STATE* pState = new XINPUT_STATE();
+// http://www.rastertek.com/dx11tut13.html
+// https://www.gamedev.net/forums/topic/668528-idirectinput8enumdevices-bug/
+// https://docs.microsoft.com/en-us/previous-versions/windows/desktop/ee417804(v%3dvs.85)
+BOOL CALLBACK EnumFFDevicesCallback(const DIDEVICEINSTANCE* pInst, VOID* pContext)
+{
+	std::string guidProductStr;
+	GUIDtoString(&guidProductStr, pInst->guidProduct);
+
+	std::cout << pInst->tszProductName << " guidProduct" << guidProductStr.c_str() << std::endl;
+
+	return DIENUM_CONTINUE;
+}
 
 int main()
 {
-	//~~~~~~~~~~~~~~~~~~~ Update DLL form
+	HRESULT result;
+	DWORD dwUserIndex = 0;
+	XINPUT_STATE* pState = new XINPUT_STATE();
 
-
-	//~~~~~~~~~~~~~~~~~~~ Loop throught all devices
-	// DirectInput in main app // C:\Users\denys.dubinin\AppData\Local\Temp\MetadataAsSource\01a98b802bf74db5b490cf94468ea36a\559446ddfdc948d5bc81210adf40afd9\DirectInput.cs
-	// NewDeviceForm if new device detected
-	// x360ce.App MainForm::RefreshCurrentInstances -> UpdateForm3 -> UpdateTimer_Elapsed
-	// DefaultPoolingInterval 50 ms
-	// DeviceInstance[] GetDevices()
-	// // Must find better way to find Device than by Vendor ID and Product ID.
-	//	var devs = DeviceDetector.GetDevices(classGuid, DIGCF.DIGCF_ALLCLASSES, null, j.Properties.VendorId, j.Properties.ProductId, 0);
-
-	// ~~~~~~~~~~~~~~~~~~ Try to find device config, othervice load from web
-	// forceRecountDevices = true by default, thet is why it load on the beginning and set false after first load try
-	// detector_DeviceChanged
-	// UpdateForm1() -> new DeviceDetector.DeviceDetectorEventHandler(detector_DeviceChanged);
-	// public void WndProc(ref Message m)
-	/**
-			/// <summary>
-		/// This function receives all the windows messages for this window (form).
-		/// We call the DeviceDetector from here so that is can pick up the messages about
-		/// drives arrived and removed.
-		/// </summary>
-		protected override void WndProc(ref Message m)
-	*/
-	// var devices = Manager.GetDevices(DeviceClass.GameControl, DeviceEnumerationFlags.AllDevices).ToList();
+	// Init DirectInput
+	IDirectInput8* m_directInput = 0;
+	// Initialize the main direct input interface.
+	result = DirectInput8Create(GetModuleHandle(0), DIRECTINPUT_VERSION, IID_IDirectInput8, (void**)&m_directInput, NULL);
+	if (FAILED(result))
+	{
+		return 1;
+	}
 	
-
-	// win api
-	WNDCLASSEX wc;
-    HWND hwnd;
-    MSG Msg;
-
-    wc.cbSize        = sizeof(WNDCLASSEX);
-    wc.style         = 0;
-    wc.lpfnWndProc   = WndProc;
-    wc.cbClsExtra    = 0;
-    wc.cbWndExtra    = 0;
-    wc.hInstance     = GetModuleHandle(NULL);
-    wc.hIcon         = LoadIcon(NULL, IDI_APPLICATION);
-    wc.hCursor       = LoadCursor(NULL, IDC_ARROW);
-    wc.hbrBackground = (HBRUSH)(COLOR_WINDOW+1);
-    wc.lpszMenuName  = NULL;
-    wc.lpszClassName = WndClassName;
-    wc.hIconSm       = LoadIcon(NULL, IDI_APPLICATION);
-
-
-	if (!RegisterClassEx(&wc))    //Register our windows class
+	while (1)
 	{
-		//if registration failed, display error
-		MessageBox(NULL, "Error registering class",
-			"Error", MB_OK | MB_ICONERROR);
-		return false;
+		XInputGetState(dwUserIndex, pState);
+		if (pState != nullptr)
+		{
+			std::cout << "GamePad >> " << pState->Gamepad.wButtons << std::endl;
+		}
+		else
+		{
+			std::cout << "No pState" << std::endl;
+		}
+
+		// Look for a force feedback device we can use 
+		result = m_directInput->EnumDevices(DI8DEVCLASS_GAMECTRL, EnumFFDevicesCallback, (void*)1, DIEDFL_ALLDEVICES);
+		if (FAILED(result))
+		{
+			return 1;
+		}
+
+		std::this_thread::sleep_for(std::chrono::milliseconds(200));
 	}
 
 
-	hwnd = CreateWindowEx(    //Create our Extended Window
-		NULL,    //Extended style
-		WndClassName,    //Name of our windows class
-		"Window Title",    //Name in the title bar of our window
-		WS_OVERLAPPEDWINDOW,    //style of our window
-		CW_USEDEFAULT, CW_USEDEFAULT,    //Top left corner of window
-		Width,    //Width of our window
-		Height,    //Height of our window
-		NULL,    //Handle to parent window
-		NULL,    //Handle to a Menu
-		GetModuleHandle(NULL),    //Specifies instance of current program
-		NULL    //used for an MDI client window
-	);
-
-	if (!hwnd)    //Make sure our window has been created
-	{
-		DWORD dwrd = GetLastError();
-
-		std::ostringstream s;
-		s << "Error create window>> " << dwrd;
-
-		MessageBoxA(NULL, std::string(s.str()).c_str(),
-			"Error", MB_OK | MB_ICONERROR);
-		return 0;
-	}
-
-	ShowWindow(hwnd, 1);    //Shows our window
-	UpdateWindow(hwnd);
-
-	messageloop();
+	m_directInput->Release();
 
 	return 0;
-}
-
-int messageloop() {    //The message loop
-
-	MSG msg;    //Create a new message structure
-	ZeroMemory(&msg, sizeof(MSG));    //clear message structure to NULL
-
-	while (true)    //while there is a message
-	{
-		//if there was a windows message
-		if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
-		{
-			if (msg.message == WM_QUIT)    //if the message was WM_QUIT
-				break;    //Exit the message loop
-
-			TranslateMessage(&msg);    //Translate the message
-
-									   //Send the message to default windows procedure
-			DispatchMessage(&msg);
-		}
-
-		else {    //Otherewise, keep the flow going
-			XInputGetState(dwUserIndex, pState);
-			if (pState != nullptr)
-			{
-				std::cout << "GamePad >> " << pState->Gamepad.wButtons << std::endl;
-			}
-			else
-			{
-				std::cout << "No pState" << std::endl;
-			}
-
-			std::this_thread::sleep_for(std::chrono::milliseconds(200));
-		}
-
-	}
-
-	return (int)msg.wParam;        //return the message
-
 }
