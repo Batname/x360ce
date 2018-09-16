@@ -10,9 +10,13 @@
 #include <Xinput.h> // window.h should be before
 #include <dinput.h>
 
+// Global variables
+UINT nDevices = 0;
 
+// Dll function prototypes
 extern DWORD WINAPI XInputGetState(DWORD dwUserIndex, XINPUT_STATE* pState);
 
+// Helper functions
 bool GUIDtoString(std::string* out, const GUID &g)
 {
 	std::unique_ptr<char[]> buffer(new char[40]);
@@ -54,21 +58,33 @@ int main()
 	
 	while (1)
 	{
+		UINT nDevicesLocal = 0;
+
+		// Update devices only on start or if plug un-plug during the game
+		GetRawInputDeviceList(NULL, &nDevicesLocal, sizeof(RAWINPUTDEVICELIST));
+		if (nDevicesLocal != nDevices)
+		{
+			nDevices = nDevicesLocal;
+			// Look for a force feedback device we can use 
+			result = m_directInput->EnumDevices(DI8DEVCLASS_GAMECTRL, EnumFFDevicesCallback, (void*)1, DIEDFL_ALLDEVICES);
+			if (FAILED(result))
+			{
+				std::this_thread::sleep_for(std::chrono::milliseconds(20));
+				continue;
+			}
+		}
+
 		XInputGetState(dwUserIndex, pState);
 		if (pState != nullptr)
 		{
-			std::cout << "GamePad >> " << pState->Gamepad.wButtons << std::endl;
+			if (pState->Gamepad.wButtons)
+			{
+				std::cout << "GamePad >> " << pState->Gamepad.wButtons << std::endl;
+			}
 		}
 		else
 		{
 			std::cout << "No pState" << std::endl;
-		}
-
-		// Look for a force feedback device we can use 
-		result = m_directInput->EnumDevices(DI8DEVCLASS_GAMECTRL, EnumFFDevicesCallback, (void*)1, DIEDFL_ALLDEVICES);
-		if (FAILED(result))
-		{
-			return 1;
 		}
 
 		std::this_thread::sleep_for(std::chrono::milliseconds(200));
