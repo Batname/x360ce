@@ -12,6 +12,8 @@
 
 // Global variables
 UINT nDevices = 0;
+int ControllersCount = 0;
+int MaxControlelrs = 4;
 
 // Dll function prototypes
 extern DWORD WINAPI XInputGetState(DWORD dwUserIndex, XINPUT_STATE* pState);
@@ -37,6 +39,11 @@ BOOL CALLBACK EnumFFDevicesCallback(const DIDEVICEINSTANCE* pInst, VOID* pContex
 	GUIDtoString(&guidProductStr, pInst->guidProduct);
 
 	std::cout << pInst->tszProductName << " guidProduct" << guidProductStr.c_str() << std::endl;
+
+	if (ControllersCount < MaxControlelrs)
+	{
+		ControllersCount++;
+	}
 
 	return DIENUM_CONTINUE;
 }
@@ -64,7 +71,10 @@ int main()
 		GetRawInputDeviceList(NULL, &nDevicesLocal, sizeof(RAWINPUTDEVICELIST));
 		if (nDevicesLocal != nDevices)
 		{
+			// Reset variables
 			nDevices = nDevicesLocal;
+			ControllersCount = 0;
+
 			// Look for a force feedback device we can use 
 			result = m_directInput->EnumDevices(DI8DEVCLASS_GAMECTRL, EnumFFDevicesCallback, (void*)1, DIEDFL_ALLDEVICES);
 			if (FAILED(result))
@@ -74,17 +84,21 @@ int main()
 			}
 		}
 
-		XInputGetState(dwUserIndex, pState);
-		if (pState != nullptr)
+		// recieve input from all controlelrs
+		for (int i = 0; i < ControllersCount; ++i)
 		{
-			if (pState->Gamepad.wButtons)
+			XInputGetState(i, pState);
+			if (pState != nullptr)
 			{
-				std::cout << "GamePad >> " << pState->Gamepad.wButtons << std::endl;
+				if (pState->Gamepad.wButtons)
+				{
+					std::cout << "GamePad >> " << pState->Gamepad.wButtons << std::endl;
+				}
 			}
-		}
-		else
-		{
-			std::cout << "No pState" << std::endl;
+			else
+			{
+				std::cout << "No pState" << std::endl;
+			}
 		}
 
 		std::this_thread::sleep_for(std::chrono::milliseconds(200));
