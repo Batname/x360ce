@@ -10,6 +10,9 @@
 #include <Xinput.h> // window.h should be before
 #include <dinput.h>
 
+// RELOAD config
+// bool instancesChanged = RefreshCurrentInstances(settingsChanged);
+
 // Global variables
 UINT nDevices = 0;
 int ControllersCount = 0;
@@ -53,6 +56,7 @@ int main()
 	HRESULT result;
 	DWORD dwUserIndex = 0;
 	XINPUT_STATE* pState = new XINPUT_STATE();
+
 
 	// Init DirectInput
 	IDirectInput8* m_directInput = 0;
@@ -101,7 +105,7 @@ int main()
 			}
 		}
 
-		std::this_thread::sleep_for(std::chrono::milliseconds(200));
+		std::this_thread::sleep_for(std::chrono::milliseconds(50));
 	}
 
 
