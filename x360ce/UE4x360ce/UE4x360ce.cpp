@@ -8,7 +8,6 @@ UE4x360ce* UE4x360ce::self = nullptr;
 UE4x360ce::UE4x360ce()
 	: bIsInputLoopRunning(false)
 	, nDevices(0)
-	, ControllersCount(0)
 	, MaxControlelrs(4)
 	, dwUserIndex(0)
 	, pState(new XINPUT_STATE())
@@ -93,6 +92,23 @@ int UE4x360ce::InputThreadLoop()
 			{
 				std::this_thread::sleep_for(std::chrono::milliseconds(20));
 				continue;
+			}
+		}
+
+		// recieve input from all controlelrs
+		for (int i = 0; i < ue4x360ceFrame.ControllersCount; ++i)
+		{
+			XInputGetState(i, pState);
+			if (pState != nullptr)
+			{
+				if (pState->Gamepad.wButtons)
+				{
+					std::cout << "GamePad >> " << pState->Gamepad.wButtons << std::endl;
+				}
+			}
+			else
+			{
+				std::cout << "No pState" << std::endl;
 			}
 		}
 

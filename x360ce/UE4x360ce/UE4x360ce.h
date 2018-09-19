@@ -66,7 +66,6 @@ private:
 private:
 	vector<ControllerData> Controllers;
 	UINT nDevices;
-	int ControllersCount;
 	int MaxControlelrs;
 
 	HRESULT result;
