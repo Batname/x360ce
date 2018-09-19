@@ -39,10 +39,10 @@
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v140</PlatformToolset>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -71,14 +71,16 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(ProjectDir)bin\$(Configuration)\</OutDir>
-    <IntDir>$(ProjectDir)obj\$(Configuration)\</IntDir>
+    <OutDir>$(ProjectDir)bin_32\$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)obj_32\$(Configuration)\</IntDir>
     <LibraryPath>$(DXSDK_DIR)Lib\x86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(ProjectDir)bin\$(Configuration)\</OutDir>
-    <IntDir>$(ProjectDir)bin\$(Configuration)\</IntDir>
+    <OutDir>$(ProjectDir)bin_64\$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)bin_64\$(Configuration)\</IntDir>
+    <IncludePath>$(SolutionDir)MinHook\include;$(SolutionDir)x360ce\Common;$(SolutionDir)x360ce\x360ce;$(SolutionDir)x360ce\InputHook;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)x360ce\InputHook\bin64\Debug;$(SolutionDir)x360ce\ditool\bin\Debug;$(SolutionDir)x360ce\dinput8\bin64\Debug;$(SolutionDir)x360ce\Common\bin64\Debug;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -116,6 +118,8 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>dxguid.lib;dinput8.lib;psapi.lib;wintrust.lib;Shlwapi.lib;Common.lib;InputHook.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(DXSDK_DIR)\Lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PreBuildEvent>
       <Command>copy /y "$(SolutionDir)x360ce\x360ce\bin64\Debug\*" "$(TargetDir)"
@@ -157,12 +161,24 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp" />
+    <ClCompile Include="..\x360ce\Config.cpp" />
+    <ClCompile Include="..\x360ce\Controller.cpp" />
+    <ClCompile Include="..\x360ce\ControllerBase.cpp" />
+    <ClCompile Include="..\x360ce\ControllerCombiner.cpp" />
+    <ClCompile Include="..\x360ce\ForceFeedback.cpp" />
+    <ClCompile Include="..\x360ce\ForceFeedbackCombiner.cpp" />
+    <ClCompile Include="main.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="UE4x360ce.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\x360ce\x360ce.vcxproj">
       <Project>{303d4435-7541-4357-91b1-cc9da7e0e926}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="UE4x360ce.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
