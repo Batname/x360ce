@@ -4,6 +4,7 @@
 
 #include <vector>
 #include <dinput.h>
+#include <memory>
 
 #include "NonCopyable.h"
 #include "ControllerBase.h"
@@ -15,7 +16,14 @@
 class ControllerManager : NonCopyable
 {
 public:
+	static ControllerManager* ControllerManagerInst;
+
 	ControllerManager()
+	{
+
+	}
+
+	void Init() 
 	{
 		std::string processName;
 		ModuleFileName(&processName);
@@ -128,10 +136,11 @@ public:
 		else return ERROR_SUCCESS;
 	}
 
-	static ControllerManager& Get()
+	static ControllerManager* Get()
 	{
-		static ControllerManager instance;
-		return instance;
+		//static ControllerManager instance;
+		//return instance;
+		return ControllerManagerInst;
 	}
 
 	std::unique_ptr<IDirectInput8A, COMDeleter>& GetDirectInput()
@@ -189,3 +198,4 @@ private:
 	bool enabled;
 	bool useEnabled;
 };
+

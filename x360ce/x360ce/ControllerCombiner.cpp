@@ -186,7 +186,7 @@ DWORD ControllerCombiner::GetState(XINPUT_STATE* pState)
 	}
 
 	// If not enabled, nothing to do
-	if (!ControllerManager::Get().XInputEnabled())
+	if (!ControllerManager::Get()->XInputEnabled())
 	{
 		return ERROR_SUCCESS;
 	}

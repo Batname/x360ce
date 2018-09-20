@@ -264,6 +264,7 @@
     <ClCompile Include="ControllerCombiner.cpp" />
     <ClCompile Include="Config.cpp" />
     <ClCompile Include="Controller.cpp" />
+    <ClCompile Include="ControllerManager.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="ForceFeedback.cpp" />
     <ClCompile Include="ForceFeedbackCombiner.cpp" />

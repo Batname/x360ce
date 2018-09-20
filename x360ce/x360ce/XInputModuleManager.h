@@ -46,7 +46,9 @@ public:
 		if (bHookLL) InputHookManager::Get().GetInputHook().DisableHook(InputHook::HOOK_LL);
 
 		std::string loaded_module_path;
-		m_module = LoadLibrarySystem(current_module, &loaded_module_path);
+		
+		m_module = LoadLibrarySystem("xinput1_3.dll", &loaded_module_path);
+		//m_module = LoadLibrarySystem(current_module, &loaded_module_path);
 
 		if (!m_module)
 		{

@@ -4,6 +4,7 @@
 #include "Utils.h"
 
 UE4x360ce* UE4x360ce::self = nullptr;
+ControllerManager* ControllerManager::ControllerManagerInst = nullptr;
 
 UE4x360ce::UE4x360ce()
 	: bIsInputLoopRunning(false)
@@ -31,7 +32,7 @@ DWORD UE4x360ce::XInputGetState(DWORD dwUserIndex, XINPUT_STATE * pState)
 	ControllerBase* pController;
 	if (!pState)
 		return ERROR_BAD_ARGUMENTS;
-	u32 initFlag = ControllerManager::Get().DeviceInitialize(dwUserIndex, &pController);
+	u32 initFlag = ControllerManager::Get()->DeviceInitialize(dwUserIndex, &pController);
 	if (initFlag != ERROR_SUCCESS)
 		return initFlag;
 
@@ -72,13 +73,12 @@ int UE4x360ce::Stop()
 
 int UE4x360ce::InputThreadLoop()
 {
+	ControllerManager::ControllerManagerInst = new ControllerManager();
+	ControllerManager::ControllerManagerInst->Init();
+
 	while (bIsInputLoopRunning)
 	{
 		UINT nDevicesLocal = 0;
-
-		ControllerManager::Get();
-		ControllerManager::Get();
-		ControllerManager::Get();
 
 		// Update devices only on start or if plug un-plug during the game
 		GetRawInputDeviceList(NULL, &nDevicesLocal, sizeof(RAWINPUTDEVICELIST));
