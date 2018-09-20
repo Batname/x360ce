@@ -76,6 +76,10 @@ int UE4x360ce::InputThreadLoop()
 	{
 		UINT nDevicesLocal = 0;
 
+		ControllerManager::Get();
+		ControllerManager::Get();
+		ControllerManager::Get();
+
 		// Update devices only on start or if plug un-plug during the game
 		GetRawInputDeviceList(NULL, &nDevicesLocal, sizeof(RAWINPUTDEVICELIST));
 		if (nDevicesLocal != nDevices)
