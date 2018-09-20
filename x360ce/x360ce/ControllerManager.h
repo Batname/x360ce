@@ -138,7 +138,6 @@ public:
 	{
 		static ControllerManager instance;
 		return instance;
-		//return ControllerManagerInst;
 	}
 
 	std::unique_ptr<IDirectInput8A, COMDeleter>& GetDirectInput()
