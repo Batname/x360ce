@@ -16,8 +16,6 @@
 class ControllerManager : NonCopyable
 {
 public:
-	static ControllerManager* ControllerManagerInst;
-
 	ControllerManager()
 	{
 
@@ -136,11 +134,11 @@ public:
 		else return ERROR_SUCCESS;
 	}
 
-	static ControllerManager* Get()
+	static ControllerManager& Get()
 	{
-		//static ControllerManager instance;
-		//return instance;
-		return ControllerManagerInst;
+		static ControllerManager instance;
+		return instance;
+		//return ControllerManagerInst;
 	}
 
 	std::unique_ptr<IDirectInput8A, COMDeleter>& GetDirectInput()

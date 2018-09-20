@@ -2,4 +2,4 @@
 
 #include "ControllerManager.h"
 
-ControllerManager* ControllerManager::ControllerManagerInst = nullptr;
+//ControllerManager* ControllerManager::ControllerManagerInst = nullptr;

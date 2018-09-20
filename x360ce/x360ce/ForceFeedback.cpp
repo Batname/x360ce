@@ -118,7 +118,7 @@ bool ForceFeedback::IsSupported()
 
 bool ForceFeedback::SetState(XINPUT_VIBRATION* pVibration)
 {
-	if (!ControllerManager::Get()->XInputEnabled())
+	if (!ControllerManager::Get().XInputEnabled())
 	{
 		// Clear state
 		if (pVibration) ZeroMemory(pVibration, sizeof(XINPUT_VIBRATION));

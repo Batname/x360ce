@@ -67,7 +67,7 @@ DWORD Controller::GetState(XINPUT_STATE* pState)
 	if (m_passthrough)
 		return XInputModuleManager::Get().XInputGetState(m_passthroughindex, pState);
 
-	if (!ControllerManager::Get()->XInputEnabled())
+	if (!ControllerManager::Get().XInputEnabled())
 	{
 		// Clear state
 		if (pState) ZeroMemory(pState, sizeof(XINPUT_STATE));
@@ -604,14 +604,14 @@ DWORD Controller::CreateDevice()
 	if (bHookSA) InputHookManager::Get().GetInputHook().DisableHook(InputHook::HOOK_SA);
 
 	IDirectInputDevice8A* device;
-	HRESULT hr = ControllerManager::Get()->GetDirectInput()->CreateDevice(m_instanceid, &device, NULL);
+	HRESULT hr = ControllerManager::Get().GetDirectInput()->CreateDevice(m_instanceid, &device, NULL);
 	if (FAILED(hr))
 	{
 		std::string strInstance;
 		if (GUIDtoString(&strInstance, m_instanceid))
 			PrintLog("[PAD%d] InstanceGUID %s is incorrect trying ProductGUID", m_user + 1, strInstance.c_str());
 
-		hr = ControllerManager::Get()->GetDirectInput()->CreateDevice(m_productid, &device, NULL);
+		hr = ControllerManager::Get().GetDirectInput()->CreateDevice(m_productid, &device, NULL);
 		if (FAILED(hr))
 			return ERROR_DEVICE_NOT_CONNECTED;
 	}
@@ -628,13 +628,13 @@ DWORD Controller::CreateDevice()
 	hr = m_pDevice->SetDataFormat(&c_dfDIJoystick2);
 	if (FAILED(hr)) PrintLog("[PAD%d] SetDataFormat failed with code HR = %X", m_user + 1, hr);
 
-	HRESULT setCooperativeLevelResult = m_pDevice->SetCooperativeLevel(ControllerManager::Get()->GetWindow(), DISCL_EXCLUSIVE | DISCL_BACKGROUND);
+	HRESULT setCooperativeLevelResult = m_pDevice->SetCooperativeLevel(ControllerManager::Get().GetWindow(), DISCL_EXCLUSIVE | DISCL_BACKGROUND);
 	if (FAILED(setCooperativeLevelResult))
 	{
 		m_useforce = false;
 		PrintLog("Cannot get exclusive device access, disabling ForceFeedback");
 
-		setCooperativeLevelResult = m_pDevice->SetCooperativeLevel(ControllerManager::Get()->GetWindow(), DISCL_NONEXCLUSIVE | DISCL_BACKGROUND);
+		setCooperativeLevelResult = m_pDevice->SetCooperativeLevel(ControllerManager::Get().GetWindow(), DISCL_NONEXCLUSIVE | DISCL_BACKGROUND);
 		if (FAILED(setCooperativeLevelResult)) PrintLog("[PAD%d] SetCooperativeLevel failed with code HR = %X", m_user + 1, setCooperativeLevelResult);
 	}
 

@@ -47,8 +47,9 @@ public:
 
 		std::string loaded_module_path;
 		
-		m_module = LoadLibrarySystem("xinput1_3.dll", &loaded_module_path);
+		// Batname. Load by default from only name xinput1_3.dll
 		//m_module = LoadLibrarySystem(current_module, &loaded_module_path);
+		m_module = LoadLibrarySystem("xinput1_3.dll", &loaded_module_path);
 
 		if (!m_module)
 		{
