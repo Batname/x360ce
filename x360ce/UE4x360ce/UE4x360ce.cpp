@@ -1,7 +1,8 @@
 #include "UE4x360ce.h"
 
-#include "XInputModuleManager.h"
 #include "Utils.h"
+#include "XInputModuleManager.h"
+#include "ControllerManager.h"
 
 void UE4x360ce::Run()
 {
@@ -19,4 +20,24 @@ DWORD UE4x360ce::XInputGetState(DWORD dwUserIndex, XINPUT_STATE * pState)
 		return initFlag;
 
 	return pController->GetState(pState);
+}
+
+int UE4x360ce::GetControllerIDByGUID(const GUID* m_productid)
+{
+	auto controllers = ControllerManager::Get().GetControllers();
+
+	for (auto cntr: controllers)
+	{
+		auto controller = static_pointer_cast<Controller>(cntr);
+		if (controller.get() != nullptr)
+		{
+			int result = memcmp(m_productid, &controller->m_productid, sizeof(GUID));
+			if (result == 0)
+			{
+				return controller->m_user;
+			}
+		}
+	}
+
+	return -1;
 }
