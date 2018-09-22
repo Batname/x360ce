@@ -22,7 +22,7 @@ DWORD UE4x360ce::XInputGetState(DWORD dwUserIndex, XINPUT_STATE * pState)
 	return pController->GetState(pState);
 }
 
-int UE4x360ce::GetControllerIDByGUID(const GUID* m_productid)
+int UE4x360ce::GetControllerUserIndexByGUID(const GUID* m_productid)
 {
 	auto controllers = ControllerManager::Get().GetControllers();
 
