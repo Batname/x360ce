@@ -22,7 +22,7 @@ DWORD UE4x360ce::XInputGetState(DWORD dwUserIndex, XINPUT_STATE * pState)
 	return pController->GetState(pState);
 }
 
-int UE4x360ce::GetControllerUserIndexByGUID(const GUID* m_productid)
+int UE4x360ce::GetControllerUserIndexByGUIDInstance(const GUID* guidInstance)
 {
 	auto controllers = ControllerManager::Get().GetControllers();
 
@@ -31,7 +31,7 @@ int UE4x360ce::GetControllerUserIndexByGUID(const GUID* m_productid)
 		auto controller = static_pointer_cast<Controller>(cntr);
 		if (controller.get() != nullptr)
 		{
-			int result = memcmp(m_productid, &controller->m_productid, sizeof(GUID));
+			int result = memcmp(guidInstance, &controller->m_instanceid, sizeof(GUID));
 			if (result == 0)
 			{
 				return controller->m_user;
