@@ -41,3 +41,9 @@ int UE4x360ce::GetControllerUserIndexByGUIDInstance(const GUID* guidInstance)
 
 	return -1;
 }
+
+void UE4x360ce::Reset()
+{
+	ControllerManager::Get().GetControllers().clear();
+	ControllerManager::Get().GetConfig().ReadConfig();
+}
