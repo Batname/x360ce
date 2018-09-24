@@ -22,6 +22,18 @@ DWORD UE4x360ce::XInputGetState(DWORD dwUserIndex, XINPUT_STATE * pState)
 	return pController->GetState(pState);
 }
 
+void UE4x360ce::XInputEnable(bool enable)
+{
+	// If any controller is native XInput then use state too.
+	for (auto it = ControllerManager::Get().GetControllers().begin(); it != ControllerManager::Get().GetControllers().end(); ++it)
+	{
+		if ((*it)->m_passthrough)
+			XInputModuleManager::Get().XInputEnable(enable);
+	}
+
+	ControllerManager::Get().XInputEnable(enable);
+}
+
 int UE4x360ce::GetControllerUserIndexByGUIDInstance(const GUID* guidInstance)
 {
 	auto controllers = ControllerManager::Get().GetControllers();
