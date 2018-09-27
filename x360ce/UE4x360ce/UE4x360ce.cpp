@@ -3,6 +3,7 @@
 #include "Utils.h"
 #include "XInputModuleManager.h"
 #include "ControllerManager.h"
+#include "Config.h"
 
 void UE4x360ce::Run()
 {
@@ -59,3 +60,32 @@ void UE4x360ce::Reset()
 	ControllerManager::Get().GetControllers().clear();
 	ControllerManager::Get().GetConfig().ReadConfig();
 }
+
+int16_t UE4x360ce::GetDeadZone(DWORD dwUserIndex, int DeadZoneIndex, bool & bIsFound)
+{
+	auto controllers = ControllerManager::Get().GetControllers();
+	
+	if (dwUserIndex >= controllers.size() || dwUserIndex < 0)
+	{
+		bIsFound = false;
+		return -1;
+	}
+
+	auto controller = controllers[dwUserIndex];
+	if (controller == nullptr)
+	{
+		bIsFound = false;
+		return -1;
+	}
+
+	auto m_mapping = controller->m_mapping;
+	if (DeadZoneIndex >= 4 || DeadZoneIndex < 0)
+	{
+		bIsFound = false;
+		return -1;
+	}
+
+	bIsFound = true;
+	return m_mapping.Axis[DeadZoneIndex].axisdeadzone;
+}
+
